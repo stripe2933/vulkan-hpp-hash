@@ -1,0 +1,32 @@
+name: Build
+
+on: push
+
+jobs:
+  build:
+    runs-on: [windows-latest, macos-latest, ubuntu-24.04]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Vulkan SDK
+        uses: humbletim/setup-vulkan-sdk@v1.2.0
+        with:
+          vulkan-query-version: latest
+          vulkan-components: Vulkan-Headers, Vulkan-Loader
+          vulkan-use-cache: true
+
+      - name: Install build dependencies (macos-latest)
+        if: runner.os == 'macos-latest'
+        run: brew install llvm ninja
+
+      - name: Install build dependencies (ubuntu-24.04)
+        if: runner.os == 'ubuntu-24.04'
+        run: sudo apt-get install ninja-build libc++-dev libc++abi-dev
+
+      - name: Configure
+        run: |
+          mv .github/workflows/scripts/* .
+          cmake --preset=${{ runner.os }}
+
+      - name: Build
+        run: cmake --build build
