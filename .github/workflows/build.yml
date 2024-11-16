@@ -7,8 +7,10 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
+      fail-fast: false
       matrix:
         os: [windows-latest, ubuntu-24.04]
+        use-system-vulkan-hpp-module: [ON, OFF]
 
     steps:
       - uses: actions/checkout@v4
@@ -31,7 +33,7 @@ jobs:
       - name: Configure
         run: |
           mv .github/workflows/scripts/* .
-          cmake --preset=${{ matrix.os }}
+          cmake --preset=${{ matrix.os }} -DUSE_SYSTEM_VULKAN_HPP_MODULE=${{ matrix.use-system-vulkan-hpp-module }}
 
       - name: Build
         run: cmake --build build
